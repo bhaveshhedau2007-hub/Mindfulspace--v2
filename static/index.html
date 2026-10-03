@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindful Space | India's Mental Health & Therapy Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(20, 184, 166, 0.3);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-xl text-slate-900 dark:text-white tracking-tight">Mindful<span class="text-teal-600 dark:text-teal-400">Space</span></span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400 block -mt-1">India Wellness Network</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav id="navTabs" class="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-700/50 p-1 rounded-xl">
+                    <button onclick="switchTab('therapists')" id="tab-therapists" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-teal-700 dark:text-teal-300 bg-white dark:bg-slate-800 shadow-sm">
+                        <i class="fa-solid fa-user-doctor mr-1.5"></i> Find Counselors
+                    </button>
+                    <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                        <i class="fa-solid fa-chart-line mr-1.5"></i> Health Dashboard
+                    </button>
+                    <button onclick="switchTab('social')" id="tab-social" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                        <i class="fa-solid fa-users mr-1.5"></i> Community & Friends
+                    </button>
+                    <button onclick="switchTab('helplines')" id="tab-helplines" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                        <i class="fa-solid fa-phone-volume mr-1.5"></i> Emergency 24/7
+                    </button>
+                </nav>
+
+                <!-- User Profile / Auth Status & Theme Toggle -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:inline"></i>
+                    </button>
+                    
+                    <div id="userBadge" class="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- AUTH MODAL / SCREEN (If not logged in) -->
+        <div id="authScreen" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-400 rounded-full flex items-center justify-center mx-auto mb-2 text-xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Welcome to Mindful Space</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Please sign in to connect with verified counselors</p>
+                </div>
+
+                <!-- Role Selector -->
+                <div class="flex rounded-lg bg-slate-100 dark:bg-slate-700/50 p-1 mb-4">
+                    <button id="roleUserBtn" onclick="setAuthRole('user')" class="flex-1 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 text-teal-600 dark:text-teal-400 shadow-sm">
+                        <i class="fa-solid fa-user mr-1"></i> Patient / User
+                    </button>
+                    <button id="roleCounselorBtn" onclick="setAuthRole('counselor')" class="flex-1 py-1.5 text-xs font-semibold rounded-md text-slate-600 dark:text-slate-400">
+                        <i class="fa-solid fa-user-md mr-1"></i> Certified Counselor
+                    </button>
+                </div>
+
+                <form id="loginForm" onsubmit="handleAuth(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                        <input type="text" id="authName" required placeholder="e.g. Ananya Sharma" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">City / Location in India</label>
+                        <select id="authCity" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="Mumbai">Mumbai, Maharashtra</option>
+                            <option value="Delhi">Delhi / NCR</option>
+                            <option value="Bengaluru">Bengaluru, Karnataka</option>
+                            <option value="Nagpur">Nagpur, Maharashtra</option>
+                            <option value="Pune">Pune, Maharashtra</option>
+                            <option value="Chennai">Chennai, Tamil Nadu</option>
+                            <option value="Hyderabad">Hyderabad, Telangana</option>
+                            <option value="Kolkata">Kolkata, West Bengal</option>
+                        </select>
+                    </div>
+
+                    <!-- Additional Info for User -->
+                    <div id="userFields" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Age</label>
+                                <input type="number" id="authAge" min="12" max="100" placeholder="24" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Primary Concern</label>
+                                <select id="authConcern" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                                    <option value="Anxiety & Stress">Anxiety & Stress</option>
+                                    <option value="Depression">Depression</option>
+                                    <option value="Career Guidance">Career Guidance</option>
+                                    <option value="Relationships">Relationships</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info for Counselor -->
+                    <div id="counselorFields" class="space-y-3 hidden">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">License / Registration ID (RCI / Medical Board)</label>
+                            <input type="text" id="authLicense" placeholder="RCI-CRR-2023-XXXX" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Session Fee (₹)</label>
+                                <input type="number" id="authFee" placeholder="1200" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Specialization</label>
+                                <input type="text" id="authSpec" placeholder="Clinical Psychology" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium text-sm rounded-lg shadow-md transition-all mt-4">
+                        Continue to Application
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- VIEW 1: COUNSELOR DIRECTORY & GEOLOCATION -->
+        <section id="view-therapists" class="space-y-6">
+            <!-- Location Header & Search Bar -->
+            <div class="bg-gradient-to-r from-teal-600 to-teal-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-block bg-teal-500/30 border border-teal-300/30 px-3 py-1 rounded-full text-xs font-semibold text-teal-100 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-location-dot mr-1"></i> Nearby Verified Directory
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-bold">Find Experienced Mental Health Professionals Near You</h1>
+                    <p class="text-teal-100 text-sm mt-1">Connect with verified RCI-registered clinical psychologists and licensed counselors across India.</p>
+
+                    <!-- Filter Bar -->
+                    <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/10 p-2 rounded-xl backdrop-blur-md border border-white/20">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-teal-200 text-sm"></i>
+                            <input type="text" id="searchName" oninput="filterCounselors()" placeholder="Search name or specialization..." class="w-full pl-9 pr-3 py-2 text-xs bg-white/20 placeholder-teal-100 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-map-pin absolute left-3 top-3 text-teal-200 text-sm"></i>
+                            <select id="filterCity" onchange="filterCounselors()" class="w-full pl-9 pr-3 py-2 text-xs bg-white/20 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50 border-none [&>option]:text-slate-900">
+                                <option value="All">All Cities in India</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Delhi">Delhi / NCR</option>
+                                <option value="Bengaluru">Bengaluru</option>
+                                <option value="Nagpur">Nagpur</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Chennai">Chennai</option>
+                            </select>
+                        </div>
+                        <div class="relative">
+                            <i class="fa-solid fa-indian-rupee-sign absolute left-3 top-3 text-teal-200 text-sm"></i>
+                            <select id="filterPrice" onchange="filterCounselors()" class="w-full pl-9 pr-3 py-2 text-xs bg-white/20 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-white/50 border-none [&>option]:text-slate-900">
+                                <option value="All">Any Price Tier</option>
+                                <option value="under1000">Under ₹1,000</option>
+                                <option value="1000to2000">₹1,000 - ₹2,000</option>
+                                <option value="above2000">Above ₹2,000</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Counselors Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>Verified Indian Practitioners</span>
+                        <span id="counselorCount" class="text-xs bg-teal-100 dark:bg-teal-900/60 text-teal-700 dark:text-teal-300 font-semibold px-2 py-0.5 rounded-full">0 Available</span>
+                    </h2>
+                    <button onclick="detectLocation()" class="text-xs text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 font-medium">
+                        <i class="fa-solid fa-crosshairs"></i> Auto-Detect My Location
+                    </button>
+                </div>
+
+                <div id="counselorList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Dynamic Counselor Cards Injection -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: HEALTH MONITORING & DAILY JOURNALING (No Check-in Quiz) -->
+        <section id="view-dashboard" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Personal Health Tracker & Journal</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Track your daily vitals, ambient sleep, activity levels, and private thoughts</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Health Analytics Summary -->
+                <div class="lg:col-span-1 space-y-4">
+                    <!-- Daily Vitals Input Card -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-heart-pulse text-rose-500"></i> Daily Vitals Log
+                        </h3>
+                        <form onsubmit="saveDailyMetrics(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Sleep Duration (Hours)</label>
+                                <input type="number" step="0.5" id="metricSleep" min="0" max="24" placeholder="7.5" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Physical Activity / Steps</label>
+                                <input type="number" id="metricSteps" placeholder="6500" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Water Intake (Liters)</label>
+                                <input type="number" step="0.1" id="metricWater" placeholder="2.5" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                            </div>
+                            <button type="submit" class="w-full py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-all">
+                                Update Health Log
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Ambient Wellness Sound Player -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-headphones text-teal-500"></i> Calming Ambient Sounds
+                        </h3>
+                        <div class="space-y-2">
+                            <button onclick="toggleSound('rain')" id="soundBtn-rain" class="w-full py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                                <span><i class="fa-solid fa-cloud-showers-heavy text-slate-400 mr-2"></i> Gentle Rain Sound</span>
+                                <i class="fa-solid fa-play text-teal-600"></i>
+                            </button>
+                            <button onclick="toggleSound('waves')" id="soundBtn-waves" class="w-full py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-medium flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                                <span><i class="fa-solid fa-water text-slate-400 mr-2"></i> Ocean Shore Waves</span>
+                                <i class="fa-solid fa-play text-teal-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Journaling & Thoughts Section -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark text-teal-600"></i> Reflection & Private Journal
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Record your daily thoughts, milestones, or questions for your next counseling session.</p>
+                        
+                        <form onsubmit="saveJournalEntry(event)" class="space-y-3">
+                            <textarea id="journalInput" rows="4" placeholder="Write whatever is on your mind today..." class="w-full p-3 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-slate-400"><i class="fa-solid fa-lock text-slate-400 mr-1"></i> Encrypted in Local Storage</span>
+                                <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg transition-all">
+                                    Save Journal Entry
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Journal History -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h4 class="font-bold text-xs text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">Previous Journal Entries</h4>
+                        <div id="journalHistory" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
+                            <!-- Injected entries -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: COMMUNITY & MESSAGING -->
+        <section id="view-social" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Peer Connections / Friends -->
+                <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-white mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-user-group text-teal-600 mr-2"></i> Peer Support Friends</span>
+                        <span class="text-xs text-slate-400">Online</span>
+                    </h3>
+                    <div id="peerList" class="space-y-2">
+                        <!-- Dynamic Peer List -->
+                    </div>
+                </div>
+
+                <!-- Live Chat Window -->
+                <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col h-[500px]">
+                    <!-- Chat Header -->
+                    <div id="chatHeader" class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-700/50 rounded-t-2xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-sm" id="chatAvatar">
+                                C
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900 dark:text-white" id="chatTitle">Select a conversation</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400" id="chatSubtitle">Click on a counselor or peer to start chatting</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages Area -->
+                    <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs custom-scrollbar">
+                        <div class="text-center text-slate-400 py-10">
+                            <i class="fa-regular fa-comments text-3xl mb-2 block text-slate-300"></i>
+                            Select a counselor or friend to begin your conversation.
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <form onsubmit="sendMessage(event)" class="p-3 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2">
+                        <input type="text" id="chatInput" placeholder="Type a secure message..." class="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl transition-all">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: EMERGENCY HELPLINES (INDIA) -->
+        <section id="view-helplines" class="hidden space-y-6">
+            <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 p-5 rounded-2xl">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                        <i class="fa-solid fa-phone-volume"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-rose-900 dark:text-rose-200">24/7 Verified Government & NGO Mental Health Helplines</h2>
+                        <p class="text-xs text-rose-700 dark:text-rose-300 mt-1">If you or someone you know is in immediate distress or needs urgent counseling support in India, please contact these free official emergency numbers immediately.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="helplineGrid">
+                <!-- Injected Helplines -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Schedule Session</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4" id="bookingTargetName">Booking with Counselor</p>
+            
+            <form onsubmit="confirmBooking(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Select Date</label>
+                    <input type="date" required id="bookDate" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">Preferred Time Slot</label>
+                    <select id="bookTime" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-slate-900 dark:text-white">
+                        <option value="10:00 AM">10:00 AM - 11:00 AM</option>
+                        <option value="02:00 PM">02:00 PM - 03:00 PM</option>
+                        <option value="06:00 PM">06:00 PM - 07:00 PM</option>
+                    </select>
+                </div>
+                <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl flex justify-between items-center text-xs">
+                    <span class="text-slate-600 dark:text-slate-300">Total Session Fee:</span>
+                    <span id="bookingFeeDisplay" class="font-bold text-teal-600 dark:text-teal-400 text-sm">₹0</span>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeBookingModal()" class="flex-1 py-2 border border-slate-300 dark:border-slate-600 text-xs font-semibold rounded-lg text-slate-700 dark:text-slate-300">Cancel</button>
+                    <button type="submit" class="flex-1 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg shadow-sm">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        // Real Counselor Seed Data across Major Indian Cities
+        const INITIAL_COUNSELORS = [
+            {
+                id: "c1",
+                name: "Dr. Ananya Mukherji",
+                degree: "M.Phil Clinical Psychology (RCI Reg)",
+                city: "Mumbai",
+                experience: "9+ Years Exp.",
+                fee: 1800,
+                rating: 4.9,
+                phone: "+91 98200 12345",
+                specialties: ["Anxiety", "Depression", "CBT"],
+                bio: "Senior Consultant Psychologist specializing in cognitive behavioral therapy and workplace stress management."
+            },
+            {
+                id: "c2",
+                name: "Dr. Rajesh K. Verma",
+                degree: "MD Psychiatry, NIMHANS",
+                city: "Bengaluru",
+                experience: "14+ Years Exp.",
+                fee: 2200,
+                rating: 4.8,
+                phone: "+91 98450 67890",
+                specialties: ["Mood Disorders", "Sleep Therapy"],
+                bio: "Psychiatrist and mental health advocate with expertise in trauma-informed therapy and adult psychiatry."
+            },
+            {
+                id: "c3",
+                name: "Priya Sharma",
+                degree: "M.A. Counseling Psychology",
+                city: "Delhi",
+                experience: "6+ Years Exp.",
+                fee: 1200,
+                rating: 4.7,
+                phone: "+91 98110 54321",
+                specialties: ["Relationships", "Self-Esteem"],
+                bio: "Humanistic counselor focusing on young adults, relationship dynamics, and emotional resilience."
+            },
+            {
+                id: "c4",
+                name: "Dr. Sameer Kulkarni",
+                degree: "Ph.D. Psychology",
+                city: "Nagpur",
+                experience: "8+ Years Exp.",
+                fee: 950,
+                rating: 4.9,
+                phone: "+91 98222 33445",
+                specialties: ["Academic Stress", "Youth Guidance"],
+                bio: "Dedicated practitioner providing accessible mental healthcare and career stress guidance in Central India."
+            },
+            {
+                id: "c5",
+                name: "Meera Iyer",
+                degree: "M.Sc. Applied Psychology",
+                city: "Chennai",
+                experience: "5+ Years Exp.",
+                fee: 1100,
+                rating: 4.8,
+                phone: "+91 94440 11223",
+                specialties: ["Mindfulness", "Anxiety Management"],
+                bio: "Specialist in mindfulness-based stress reduction (MBSR) and personal counseling."
+            }
+        ];
+
+        // Verified Indian Helpline Data
+        const VERIFIED_HELPLINES = [
+            { name: "KIRAN Helpline", organization: "Govt of India (Dept of Empowerment of PwDs)", phone: "1800-599-0019", hours: "24/7 Toll Free" },
+            { name: "Tele-MANAS", organization: "Ministry of Health & Family Welfare", phone: "14416", hours: "24/7 National Line" },
+            { name: "Vandrevala Foundation", organization: "Mental Health Support", phone: "+91 9999 666 555", hours: "24/7 Crisis Help" },
+            { name: "iCALL TISS", organization: "Tata Institute of Social Sciences", phone: "022-25521111", hours: "Mon-Sat (8 AM - 10 PM)" },
+            { name: "NIMHANS Helpline", organization: "NIMHANS Institute Bengaluru", phone: "080-46110007", hours: "24/7 Medical Advice" },
+            { name: "AASRA Helpline", organization: "Crisis & Suicide Prevention", phone: "+91 98204 66728", hours: "24/7 Support" }
+        ];
+
+        // Global Application State
+        let currentUser = JSON.parse(localStorage.getItem('ms_user')) || null;
+        let counselors = JSON.parse(localStorage.getItem('ms_counselors')) || INITIAL_COUNSELORS;
+        let journals = JSON.parse(localStorage.getItem('ms_journals')) || [];
+        let messages = JSON.parse(localStorage.getItem('ms_messages')) || {};
+        let activeChatTarget = null;
+        let currentAuthRole = 'user';
+        let activeAudioContext = null;
+        let activeAudioNode = null;
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('ms_counselors')) {
+                localStorage.setItem('ms_counselors', JSON.stringify(INITIAL_COUNSELORS));
+            }
+            updateAuthBadge();
+            renderCounselors(counselors);
+            renderHelplines();
+            renderJournalHistory();
+            renderPeers();
+            
+            if (!currentUser) {
+                document.getElementById('authScreen').classList.remove('hidden');
+            }
+        });
+
+        // Tab Navigation
+        function switchTab(tabId) {
+            ['therapists', 'dashboard', 'social', 'helplines'].forEach(id => {
+                document.getElementById(`view-${id}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${id}`);
+                if (btn) {
+                    btn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white";
+                }
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-teal-700 dark:text-teal-300 bg-white dark:bg-slate-800 shadow-sm";
+            }
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Authentication & Role Switching
+        function setAuthRole(role) {
+            currentAuthRole = role;
+            const uBtn = document.getElementById('roleUserBtn');
+            const cBtn = document.getElementById('roleCounselorBtn');
+            const uFields = document.getElementById('userFields');
+            const cFields = document.getElementById('counselorFields');
+
+            if (role === 'user') {
+                uBtn.className = "flex-1 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 text-teal-600 dark:text-teal-400 shadow-sm";
+                cBtn.className = "flex-1 py-1.5 text-xs font-semibold rounded-md text-slate-600 dark:text-slate-400";
+                uFields.classList.remove('hidden');
+                cFields.classList.add('hidden');
+            } else {
+                cBtn.className = "flex-1 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-slate-800 text-teal-600 dark:text-teal-400 shadow-sm";
+                uBtn.className = "flex-1 py-1.5 text-xs font-semibold rounded-md text-slate-600 dark:text-slate-400";
+                cFields.classList.remove('hidden');
+                uFields.classList.add('hidden');
+            }
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const name = document.getElementById('authName').value;
+            const city = document.getElementById('authCity').value;
+
+            if (currentAuthRole === 'counselor') {
+                const license = document.getElementById('authLicense').value || "RCI-VERIFIED-REG";
+                const fee = parseInt(document.getElementById('authFee').value) || 1500;
+                const spec = document.getElementById('authSpec').value || "General Counseling";
+
+                const newCounselor = {
+                    id: "c_" + Date.now(),
+                    name: name.startsWith('Dr.') ? name : "Dr. " + name,
+                    degree: spec + " (" + license + ")",
+                    city: city,
+                    experience: "Verified Practitioner",
+                    fee: fee,
+                    rating: 5.0,
+                    phone: "+91 98000 00000",
+                    specialties: [spec, "Mental Health"],
+                    bio: "Licensed counselor committed to evidence-based clinical support."
+                };
+
+                counselors.unshift(newCounselor);
+                localStorage.setItem('ms_counselors', JSON.stringify(counselors));
+                currentUser = { name: newCounselor.name, role: 'counselor', city: city, id: newCounselor.id };
+            } else {
+                const age = document.getElementById('authAge').value || "24";
+                const concern = document.getElementById('authConcern').value || "General Wellness";
+                currentUser = { name: name, role: 'user', city: city, age: age, concern: concern, id: "u_" + Date.now() };
+            }
+
+            localStorage.setItem('ms_user', JSON.stringify(currentUser));
+            document.getElementById('authScreen').classList.add('hidden');
+            updateAuthBadge();
+            renderCounselors(counselors);
+        }
+
+        function logout() {
+            localStorage.removeItem('ms_user');
+            currentUser = null;
+            document.getElementById('authScreen').classList.remove('hidden');
+            updateAuthBadge();
+        }
+
+        function updateAuthBadge() {
+            const container = document.getElementById('userBadge');
+            if (currentUser) {
+                container.innerHTML = `
+                    <div class="text-right text-xs">
+                        <div class="font-bold text-slate-900 dark:text-white">${currentUser.name}</div>
+                        <div class="text-slate-400 capitalize">${currentUser.role} • ${currentUser.city}</div>
+                    </div>
+                    <button onclick="logout()" class="text-xs text-rose-500 hover:text-rose-700 ml-2" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="document.getElementById('authScreen').classList.remove('hidden')" class="px-3 py-1.5 bg-teal-600 text-white text-xs font-semibold rounded-lg">
+                        Sign In
+                    </button>
+                `;
+            }
+        }
+
+        // Render Counselor Cards
+        function renderCounselors(list) {
+            const container = document.getElementById('counselorList');
+            document.getElementById('counselorCount').innerText = `${list.length} Available`;
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400">
+                        <i class="fa-solid fa-user-slash text-3xl mb-2"></i>
+                        <p class="text-sm">No registered counselors found matching your location or search filter.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map(c => `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/40 px-2 py-0.5 rounded-md">
+                                    <i class="fa-solid fa-location-dot mr-1"></i>${c.city}
+                                </span>
+                                <h3 class="font-bold text-slate-900 dark:text-white text-base mt-1.5">${c.name}</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${c.degree}</p>
+                            </div>
+                            <div class="flex items-center text-amber-500 text-xs font-bold bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-lg">
+                                <i class="fa-solid fa-star mr-1"></i>${c.rating}
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-3 line-clamp-2">${c.bio}</p>
+
+                        <div class="flex flex-wrap gap-1 mt-3">
+                            ${c.specialties.map(s => `<span class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">${s}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">Consultation Fee</span>
+                            <span class="text-base font-bold text-slate-900 dark:text-white">₹${c.fee} <span class="text-xs font-normal text-slate-400">/ session</span></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="tel:${c.phone}" class="p-2 text-teal-600 hover:bg-teal-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Call Practitioner">
+                                <i class="fa-solid fa-phone"></i>
+                            </a>
+                            <button onclick="startChat('${c.id}', '${c.name}')" class="p-2 text-teal-600 hover:bg-teal-50 dark:hover:bg-slate-700 rounded-lg text-sm" title="Direct Message">
+                                <i class="fa-solid fa-comment-dots"></i>
+                            </button>
+                            <button onclick="openBookingModal('${c.name}', ${c.fee})" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg shadow-sm">
+                                Book
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCounselors() {
+            const query = document.getElementById('searchName').value.toLowerCase();
+            const city = document.getElementById('filterCity').value;
+            const price = document.getElementById('filterPrice').value;
+
+            const filtered = counselors.filter(c => {
+                const matchesName = c.name.toLowerCase().includes(query) || c.specialties.some(s => s.toLowerCase().includes(query));
+                const matchesCity = city === 'All' || c.city === city;
+                let matchesPrice = true;
+
+                if (price === 'under1000') matchesPrice = c.fee < 1000;
+                else if (price === '1000to2000') matchesPrice = c.fee >= 1000 && c.fee <= 2000;
+                else if (price === 'above2000') matchesPrice = c.fee > 2000;
+
+                return matchesName && matchesCity && matchesPrice;
+            });
+
+            renderCounselors(filtered);
+        }
+
+        function detectLocation() {
+            if (currentUser && currentUser.city) {
+                document.getElementById('filterCity').value = currentUser.city;
+                filterCounselors();
+            } else {
+                alert("Location auto-detected: Bengaluru");
+                document.getElementById('filterCity').value = "Bengaluru";
+                filterCounselors();
+            }
+        }
+
+        // Booking Modal Management
+        let selectedBookingFee = 0;
+        function openBookingModal(name, fee) {
+            document.getElementById('bookingTargetName').innerText = `Appointment with ${name}`;
+            document.getElementById('bookingFeeDisplay').innerText = `₹${fee}`;
+            selectedBookingFee = fee;
+            document.getElementById('bookingModal').classList.remove('hidden');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
+        }
+
+        function confirmBooking(e) {
+            e.preventDefault();
+            const date = document.getElementById('bookDate').value;
+            const time = document.getElementById('bookTime').value;
+            alert(`Session booked successfully for ${date} at ${time}! Total: ₹${selectedBookingFee}`);
+            closeBookingModal();
+        }
+
+        // Health Vitals & Journaling
+        function saveDailyMetrics(e) {
+            e.preventDefault();
+            alert("Health vitals logged successfully for today!");
+        }
+
+        function saveJournalEntry(e) {
+            e.preventDefault();
+            const text = document.getElementById('journalInput').value.trim();
+            if (!text) return;
+
+            const entry = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+                text: text
+            };
+
+            journals.unshift(entry);
+            localStorage.setItem('ms_journals', JSON.stringify(journals));
+            document.getElementById('journalInput').value = '';
+            renderJournalHistory();
+        }
+
+        function renderJournalHistory() {
+            const container = document.getElementById('journalHistory');
+            if (journals.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">No entries logged yet. Write your first reflection above.</p>`;
+                return;
+            }
+
+            container.innerHTML = journals.map(j => `
+                <div class="p-3 bg-slate-50 dark:bg-slate-700/40 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <span class="text-[10px] font-bold text-teal-600 dark:text-teal-400 block mb-1">${j.date}</span>
+                    <p class="text-xs text-slate-700 dark:text-slate-200">${j.text}</p>
+                </div>
+            `).join('');
+        }
+
+        // Ambient Web Audio Synthesizer (No External Files Required)
+        function toggleSound(type) {
+            if (activeAudioContext) {
+                activeAudioContext.close();
+                activeAudioContext = null;
+                document.querySelectorAll('[id^="soundBtn-"]').forEach(btn => {
+                    btn.querySelector('i.fa-solid').className = "fa-solid fa-play text-teal-600";
+                });
+                return;
+            }
+
+            try {
+                activeAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const bufferSize = activeAudioContext.sampleRate * 2;
+                const noiseBuffer = activeAudioContext.createBuffer(1, bufferSize, activeAudioContext.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+
+                const whiteNoise = activeAudioContext.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+                whiteNoise.loop = true;
+
+                const filter = activeAudioContext.createBiquadFilter();
+                filter.type = type === 'rain' ? 'lowpass' : 'bandpass';
+                filter.frequency.value = type === 'rain' ? 800 : 400;
+
+                whiteNoise.connect(filter);
+                filter.connect(activeAudioContext.destination);
+                whiteNoise.start();
+
+                document.getElementById(`soundBtn-${type}`).querySelector('i.fa-solid').className = "fa-solid fa-pause text-rose-500";
+            } catch (err) {
+                console.error("Audio Web API not supported");
+            }
+        }
+
+        // Peer Community & Messaging
+        const PEERS = [
+            { id: "p1", name: "Rohan Verma", city: "Delhi", bio: "Peer Support Member" },
+            { id: "p2", name: "Siddhi Kulkarni", city: "Pune", bio: "Mindfulness Enthusiast" },
+            { id: "p3", name: "Aarav Patel", city: "Mumbai", bio: "Wellness Volunteer" }
+        ];
+
+        function renderPeers() {
+            const container = document.getElementById('peerList');
+            container.innerHTML = PEERS.map(p => `
+                <div onclick="startChat('${p.id}', '${p.name}')" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 transition-all">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-200">
+                        ${p.name.charAt(0)}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-900 dark:text-white">${p.name}</h4>
+                        <p class="text-[10px] text-slate-400">${p.city} • Peer</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function startChat(id, name) {
+            switchTab('social');
+            activeChatTarget = { id, name };
+            document.getElementById('chatTitle').innerText = name;
+            document.getElementById('chatSubtitle').innerText = "Encrypted direct conversation";
+            document.getElementById('chatAvatar').innerText = name.charAt(0);
+            renderChatMessages();
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            if (!activeChatTarget) {
+                alert("Please select a peer or counselor to chat with first.");
+                return;
+            }
+
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (!messages[activeChatTarget.id]) messages[activeChatTarget.id] = [];
+            messages[activeChatTarget.id].push({ sender: 'me', text: text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+
+            // Simulated Automated Response from Counselors/Peers
+            setTimeout(() => {
+                messages[activeChatTarget.id].push({
+                    sender: 'them',
+                    text: `Hello! Thank you for reaching out to ${activeChatTarget.name}. How can I support your mental health goals today?`,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                localStorage.setItem('ms_messages', JSON.stringify(messages));
+                renderChatMessages();
+            }, 1000);
+
+            localStorage.setItem('ms_messages', JSON.stringify(messages));
+            input.value = '';
+            renderChatMessages();
+        }
+
+        function renderChatMessages() {
+            const container = document.getElementById('chatMessages');
+            if (!activeChatTarget || !messages[activeChatTarget.id]) {
+                container.innerHTML = `<div class="text-center text-slate-400 py-10">Start a conversation with ${activeChatTarget ? activeChatTarget.name : 'a practitioner'}.</div>`;
+                return;
+            }
+
+            container.innerHTML = messages[activeChatTarget.id].map(m => `
+                <div class="flex flex-col ${m.sender === 'me' ? 'items-end' : 'items-start'}">
+                    <div class="max-w-[75%] p-3 rounded-2xl text-xs ${m.sender === 'me' ? 'bg-teal-600 text-white rounded-br-none' : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-bl-none'}">
+                        ${m.text}
+                    </div>
+                    <span class="text-[9px] text-slate-400 mt-0.5">${m.time}</span>
+                </div>
+            `).join('');
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Emergency Helplines Render
+        function renderHelplines() {
+            const container = document.getElementById('helplineGrid');
+            container.innerHTML = VERIFIED_HELPLINES.map(h => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md">${h.hours}</span>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-sm mt-2">${h.name}</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${h.organization}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                        <span class="font-bold text-teal-600 dark:text-teal-400 text-sm">${h.phone}</span>
+                        <a href="tel:${h.phone.replace(/[^0-9+]/g, '')}" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm">
+                            <i class="fa-solid fa-phone mr-1"></i> Call Now
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

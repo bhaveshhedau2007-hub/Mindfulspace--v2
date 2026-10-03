@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mindful Space – Counsellor verification</title>
+<style>body{font:15px/1.5 system-ui,sans-serif;max-width:900px;margin:30px auto;padding:0 16px;color:#171A3A}input,button{font:inherit;padding:9px 12px;border-radius:10px;border:1px solid #ccd}button{cursor:pointer;background:#3E3CA8;color:#fff;border:0}button.r{background:#E5546B}.c{border:1px solid #DDE1F0;border-radius:14px;padding:14px;margin:12px 0}.s{font-weight:700}</style></head><body>
+<h1>Counsellor verification</h1><p>Check each registration ID against the official register (e.g. RCI's Centre Register of Rehabilitation Professionals, or the state medical council) before approving.</p>
+<input id="t" type="password" placeholder="Admin token" size="30"> <button onclick="load()">Load</button><div id="out"></div>
+<script>
+const out=document.getElementById('out'),t=document.getElementById('t');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function load(){const r=await fetch('/api/admin/counsellors',{headers:{'X-Admin-Token':t.value}});if(!r.ok){out.textContent='Unauthorised or server error.';return}
+const j=await r.json();out.innerHTML=j.items.length?j.items.map(c=>`<div class="c"><b>${esc(c.name)}</b> — ${esc(c.title)}, ${esc(c.city)} <span class="s">[${esc(c.status)}]</span><br>${esc(c.council)}<br>Registration ID: <b>${esc(c.reg_id)}</b> · Qualification: ${esc(c.qual)} · Phone: ${esc(c.phone)} · Email: ${esc(c.contact&&c.contact.email)}<br><button onclick="set(${c.id},'verified')">Approve</button> <button class="r" onclick="set(${c.id},'rejected')">Reject</button></div>`).join(''):'<p>No counsellor registrations yet.</p>'}
+async function set(id,s){await fetch('/api/admin/counsellors/'+id+'/status',{method:'POST',headers:{'X-Admin-Token':t.value,'Content-Type':'application/json'},body:JSON.stringify({status:s})});load()}
+</script></body></html>

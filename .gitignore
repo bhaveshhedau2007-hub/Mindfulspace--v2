@@ -1,0 +1,4 @@
+.secret_key
+.env
+mindful.db
+_pycache_/
